@@ -7,18 +7,29 @@ import {
 } from "./utils";
 
 const stack: SSMLTag[] = [];
-function extractSSML(decodedSSML: string): SSMLTag | undefined {
-  const startingBracket = decodedSSML.indexOf("<");
-  const endingBracket = decodedSSML.indexOf(">");
+function extractSSML(unparsedSSML: string): SSMLTag | undefined {
+  const startingBracket = unparsedSSML.indexOf("<");
+  const endingBracket = unparsedSSML.indexOf(">");
 
   assert(startingBracket !== -1 || endingBracket !== -1, "missing brackets");
 
-  const badTag = decodedSSML
+  const badTag = unparsedSSML
     .substring(startingBracket + 1, endingBracket)
     .trim();
 
   assert(badTag.length > 0);
+  const leftOverSSML = unparsedSSML.substring(endingBracket + 1);
 
+  const textContent = unparsedSSML.substring(0, startingBracket).trim();
+
+  const regex = /^[^<>]*$/;
+  assert(regex.test(textContent));
+
+  assert(textContent.length > 0 ? stack.length > 0 : true);
+  if (textContent.length > 0) {
+    const lastNode = stack[stack.length - 1];
+    lastNode.textContent += decodeSSMLEntities(textContent);
+  }
   let isEndTag = badTag[0] === "/";
   if (isEndTag) {
     const lastNode = stack.pop();
@@ -27,6 +38,7 @@ function extractSSML(decodedSSML: string): SSMLTag | undefined {
     assert(getEndTagName !== null);
     assert(lastNode!.name === getEndTagName![0]);
     if (stack.length === 0) {
+      assert(leftOverSSML.length === 0);
       return lastNode!;
     }
     stack[stack.length - 1].children.push(lastNode!);
@@ -36,29 +48,20 @@ function extractSSML(decodedSSML: string): SSMLTag | undefined {
       assert(stack.length > 0);
       stack[stack.length - 1].children.push(node);
     } else {
+      assert(node !== undefined);
       stack.push(node);
     }
   }
-  if (endingBracket + 1 < decodedSSML.length) {
-    return extractSSML(decodedSSML.substring(endingBracket + 1));
+  if (endingBracket + 1 < unparsedSSML.length) {
+    return extractSSML(leftOverSSML);
   }
 }
 
 export function parseSSML(unparsedSSML: string) {
-  let decodedSSML = decodeSSMLEntities(unparsedSSML.trim());
-  const parsedSSML = extractSSML(decodedSSML);
+  const parsedSSML = extractSSML(unparsedSSML.trim());
   assert(parsedSSML !== undefined);
   return parsedSSML;
 }
-
-// let ssml = `
-// &lt;speak name="biatch" thing="such and such"/&gt; Hello, world!
-// &lt;&gt;
-// &lt;break time=&quot;1s&quot;/&gt;Welcome to our &lt;emphasis level=&quot;strong&quot;&gt;amazing&lt;/emphasis&gt; service.
-// &amp;lt; This should be a less than sign.
-// How about some special characters like &amp;quot;, &amp;amp;, &amp;apos;?
-// &lt;prosody rate=&quot;fast&quot; pitch=&quot;high&quot;&gt; Enjoy your experience &lt;/prosody&gt;
-// &lt;/speak&gt;`;
 
 let anotherSSML = `
 <speak>

@@ -7,4 +7,5 @@ export type SSMLTag = {
   name: string;
   children: SSMLTag[];
   attributes: SSMLAttribute[];
+  textContent: string;
 };

@@ -53,7 +53,12 @@ export function extractAttributes(badTag: string) {
     "attribute farming"
   );
 
-  return { name: tagName, attributes: ssmlAttributes, children: [] };
+  return {
+    name: tagName,
+    attributes: ssmlAttributes,
+    children: [],
+    textContent: "",
+  };
 }
 
 export function decodeSSMLEntities(encodedSSML: string) {

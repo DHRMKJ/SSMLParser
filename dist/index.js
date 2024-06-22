@@ -62,7 +62,12 @@ function extractAttributes(badTag) {
     badTagAttributes.length > 0 ? badTagAttributes.length === 1 ? badTagAttributes[0] === "/" : false : true,
     "attribute farming"
   );
-  return { name: tagName, attributes: ssmlAttributes, children: [] };
+  return {
+    name: tagName,
+    attributes: ssmlAttributes,
+    children: [],
+    textContent: ""
+  };
 }
 function decodeSSMLEntities(encodedSSML) {
   return encodedSSML.replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
@@ -70,12 +75,21 @@ function decodeSSMLEntities(encodedSSML) {
 
 // src/index.ts
 var stack = [];
-function extractSSML(decodedSSML) {
-  const startingBracket = decodedSSML.indexOf("<");
-  const endingBracket = decodedSSML.indexOf(">");
+function extractSSML(unparsedSSML) {
+  const startingBracket = unparsedSSML.indexOf("<");
+  const endingBracket = unparsedSSML.indexOf(">");
   assert(startingBracket !== -1 || endingBracket !== -1, "missing brackets");
-  const badTag = decodedSSML.substring(startingBracket + 1, endingBracket).trim();
+  const badTag = unparsedSSML.substring(startingBracket + 1, endingBracket).trim();
   assert(badTag.length > 0);
+  const leftOverSSML = unparsedSSML.substring(endingBracket + 1);
+  const textContent = unparsedSSML.substring(0, startingBracket).trim();
+  const regex = /^[^<>]*$/;
+  assert(regex.test(textContent));
+  assert(textContent.length > 0 ? stack.length > 0 : true);
+  if (textContent.length > 0) {
+    const lastNode = stack[stack.length - 1];
+    lastNode.textContent += decodeSSMLEntities(textContent);
+  }
   let isEndTag = badTag[0] === "/";
   if (isEndTag) {
     const lastNode = stack.pop();
@@ -84,6 +98,7 @@ function extractSSML(decodedSSML) {
     assert(getEndTagName !== null);
     assert(lastNode.name === getEndTagName[0]);
     if (stack.length === 0) {
+      assert(leftOverSSML.length === 0);
       return lastNode;
     }
     stack[stack.length - 1].children.push(lastNode);
@@ -93,17 +108,18 @@ function extractSSML(decodedSSML) {
       assert(stack.length > 0);
       stack[stack.length - 1].children.push(node);
     } else {
+      assert(node !== void 0);
       stack.push(node);
     }
   }
-  if (endingBracket + 1 < decodedSSML.length) {
-    return extractSSML(decodedSSML.substring(endingBracket + 1));
+  if (endingBracket + 1 < unparsedSSML.length) {
+    return extractSSML(leftOverSSML);
   }
 }
 function parseSSML(unparsedSSML) {
-  let decodedSSML = decodeSSMLEntities(unparsedSSML.trim());
-  const parsedSSML = extractSSML(decodedSSML);
+  const parsedSSML = extractSSML(unparsedSSML.trim());
   assert(parsedSSML !== void 0);
+  console.log(parsedSSML);
   return parsedSSML;
 }
 var anotherSSML = `
@@ -117,7 +133,7 @@ var anotherSSML = `
   Or I can even speak in digits. The digits for ten are <say-as interpret-as="characters">10</say-as>.
   I can also substitute phrases, like the <sub alias="World Wide Web Consortium">W3C</sub>.
   Finally, I can speak a paragraph with two sentences.
-  <p><s>This is sentence one.</s><s>This is sentence two.</s>></p>
+  <p><s>This is sentence one.</s><s>This is sentence two.</s></p>
   </speak>
 `;
 parseSSML(anotherSSML);
