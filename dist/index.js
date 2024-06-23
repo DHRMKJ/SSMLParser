@@ -28,15 +28,21 @@ module.exports = __toCommonJS(src_exports);
 var ERROR_MESSAGE = "[ERROR]: error parsing ssml";
 function assert(condition, message) {
   if (!condition) {
-    let EMESSAGE = ERROR_MESSAGE;
-    if (message) {
-      EMESSAGE += `, ${message}`;
-    }
-    throw Error(EMESSAGE);
+    throw Error(ERROR_MESSAGE + `, ${message}`);
   }
 }
 function extractName(badTag) {
   return badTag.match(/\b[a-z]+\b/i);
+}
+function generateRandom(LENGTH = 16) {
+  let characters = "abcdefghijklmnopqrstuvwxyz";
+  characters += characters.toUpperCase();
+  characters += "0123456789";
+  let randomString = "";
+  for (let i = 0; i < LENGTH; i++) {
+    randomString += characters[Math.floor(Math.random() * (characters.length - 1))];
+  }
+  return randomString;
 }
 function extractAttributes(badTag) {
   const getTagName = extractName(badTag);
@@ -65,7 +71,8 @@ function extractAttributes(badTag) {
   return {
     name: tagName,
     attributes: ssmlAttributes,
-    children: [],
+    id: generateRandom(),
+    children: {},
     textContent: ""
   };
 }
@@ -74,6 +81,8 @@ function decodeSSMLEntities(encodedSSML) {
 }
 
 // src/index.ts
+var RAND_ID_START = "XmNjtYdxRXkbfci4nxOUAA4D0vFoVKju";
+var RAND_ID_END = "XmNjtYdxRXkbfci4nxOUAA4D0vFoVKju";
 var stack = [];
 function extractSSML(unparsedSSML) {
   const startingBracket = unparsedSSML.indexOf("<");
@@ -101,12 +110,14 @@ function extractSSML(unparsedSSML) {
       assert(leftOverSSML.length === 0);
       return lastNode;
     }
-    stack[stack.length - 1].children.push(lastNode);
+    stack[stack.length - 1].children[lastNode.id] = lastNode;
+    stack[stack.length - 1].textContent += RAND_ID_START + lastNode.id + RAND_ID_END;
   } else {
     const node = extractAttributes(badTag);
     if (badTag[badTag.length - 1] === "/") {
       assert(stack.length > 0);
-      stack[stack.length - 1].children.push(node);
+      stack[stack.length - 1].children[node.id] = node;
+      stack[stack.length - 1].textContent += RAND_ID_START + node.id + RAND_ID_END;
     } else {
       assert(node !== void 0);
       stack.push(node);

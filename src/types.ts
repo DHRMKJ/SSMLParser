@@ -5,7 +5,8 @@ export type SSMLAttribute = {
 
 export type SSMLTag = {
   name: string;
-  children: SSMLTag[];
+  children: { [id: string]: SSMLTag };
+  id: string;
   attributes: SSMLAttribute[];
   textContent: string;
 };

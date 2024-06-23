@@ -6,16 +6,25 @@ export const ERROR_MESSAGE = "[ERROR]: error parsing ssml";
 
 export function assert(condition: boolean, message?: string) {
   if (!condition) {
-    let EMESSAGE = ERROR_MESSAGE;
-    if (message) {
-      EMESSAGE += `, ${message}`;
-    }
-    throw Error(EMESSAGE);
+    throw Error(ERROR_MESSAGE + `, ${message}`);
   }
 }
 
 export function extractName(badTag: string) {
   return badTag.match(/\b[a-z]+\b/i);
+}
+
+export function generateRandom(LENGTH: number = 16) {
+  let characters = "abcdefghijklmnopqrstuvwxyz";
+  characters += characters.toUpperCase();
+  characters += "0123456789";
+  let randomString = "";
+
+  for (let i = 0; i < LENGTH; i++) {
+    randomString +=
+      characters[Math.floor(Math.random() * (characters.length - 1))];
+  }
+  return randomString;
 }
 
 export function extractAttributes(badTag: string) {
@@ -56,12 +65,13 @@ export function extractAttributes(badTag: string) {
   return {
     name: tagName,
     attributes: ssmlAttributes,
-    children: [],
+    id: generateRandom(),
+    children: {},
     textContent: "",
   };
 }
 
-export function decodeSSMLEntities(encodedSSML: string) {
+export function decodeSSMLEntities(encodedSSML: string): string {
   return encodedSSML
     .replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'")

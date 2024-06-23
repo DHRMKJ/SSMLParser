@@ -6,6 +6,9 @@ import {
   extractName,
 } from "./utils";
 
+const RAND_ID_START = "XmNjtYdxRXkbfci4nxOUAA4D0vFoVKju";
+const RAND_ID_END = "XmNjtYdxRXkbfci4nxOUAA4D0vFoVKju";
+
 const stack: SSMLTag[] = [];
 function extractSSML(unparsedSSML: string): SSMLTag | undefined {
   const startingBracket = unparsedSSML.indexOf("<");
@@ -41,12 +44,16 @@ function extractSSML(unparsedSSML: string): SSMLTag | undefined {
       assert(leftOverSSML.length === 0);
       return lastNode!;
     }
-    stack[stack.length - 1].children.push(lastNode!);
+    stack[stack.length - 1].children[lastNode!.id] = lastNode!;
+    stack[stack.length - 1].textContent +=
+      RAND_ID_START + lastNode!.id + RAND_ID_END;
   } else {
     const node: SSMLTag = extractAttributes(badTag);
     if (badTag[badTag.length - 1] === "/") {
       assert(stack.length > 0);
-      stack[stack.length - 1].children.push(node);
+      stack[stack.length - 1].children[node.id] = node;
+      stack[stack.length - 1].textContent +=
+        RAND_ID_START + node.id + RAND_ID_END;
     } else {
       assert(node !== undefined);
       stack.push(node);
@@ -60,6 +67,7 @@ function extractSSML(unparsedSSML: string): SSMLTag | undefined {
 export function parseSSML(unparsedSSML: string) {
   const parsedSSML = extractSSML(unparsedSSML.trim());
   assert(parsedSSML !== undefined);
+  console.log(parsedSSML);
   return parsedSSML;
 }
 
