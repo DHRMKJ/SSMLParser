@@ -6,8 +6,8 @@ import {
   extractName,
 } from "./utils";
 
-const RAND_ID_START = "XmNjtYdxRXkbfci4nxOUAA4D0vFoVKju";
-const RAND_ID_END = "XmNjtYdxRXkbfci4nxOUAA4D0vFoVKju";
+const RAND_ID_START = "---";
+const RAND_ID_END = "---";
 
 const stack: SSMLTag[] = [];
 function extractSSML(unparsedSSML: string): SSMLTag | undefined {
@@ -73,17 +73,76 @@ export function parseSSML(unparsedSSML: string) {
 
 let anotherSSML = `
 <speak>
-  Here are <say-as interpret-as="characters">SSML</say-as> samples.
-  I can pause <break time="3s"></break>.
-  I can play a sound
-  <audio src="https://www.example.com/MY_MP3_FILE.mp3">didn't get your MP3 audio file</audio>.
-  I can speak in cardinals. Your number is <say-as interpret-as="cardinal">10</say-as>.
-  Or I can speak in ordinals. You are <say-as interpret-as="ordinal">10</say-as> in line.
-  Or I can even speak in digits. The digits for ten are <say-as interpret-as="characters">10</say-as>.
-  I can also substitute phrases, like the <sub alias="World Wide Web Consortium">W3C</sub>.
-  Finally, I can speak a paragraph with two sentences.
-  <p><s>This is sentence one.</s><s>This is sentence two.</s></p>
-  </speak>
+    <voice name="en-US-Wavenet-A">
+        <prosody rate="slow" pitch="low">
+            <p>
+                Welcome to the exciting world of speech synthesis. Today, we'll explore the various features of SSML.
+            </p>
+        </prosody>
+    </voice>
+    
+    <break time="1s"/>
+    
+    <voice name="en-GB-Wavenet-B">
+        <prosody rate="medium" pitch="high">
+            <p>
+                Let's start with some basic formatting. You can control the <emphasis level="strong">emphasis</emphasis> on words, and even add pauses. 
+                For example, let's take a <break time="500ms"/> short pause here.
+            </p>
+        </prosody>
+    </voice>
+    
+    <voice name="en-AU-Wavenet-C">
+        <prosody rate="fast" pitch="x-high">
+            <p>
+                Moving on to more advanced features, you can include <say-as interpret-as="characters">HTML</say-as> like elements, 
+                such as <sub alias="World Wide Web">WWW</sub>. You can also spell out words like <say-as interpret-as="spell-out">SSML</say-as>.
+            </p>
+        </prosody>
+    </voice>
+    
+    <break time="1s"/>
+    
+    <voice name="en-IN-Wavenet-D">
+        <prosody rate="default" pitch="default">
+            <p>
+                How about some numbers? You can read them in different ways. 
+                For example, <say-as interpret-as="cardinal">123</say-as> as a cardinal number, 
+                or <say-as interpret-as="ordinal">1st</say-as> as an ordinal number. 
+                You can also say it as digits: <say-as interpret-as="digits">123</say-as>.
+            </p>
+        </prosody>
+    </voice>
+    
+    <voice name="en-US-Wavenet-E">
+        <prosody rate="medium" pitch="low">
+            <p>
+                Now, let's try some dates and times. You can read dates like <say-as interpret-as="date" format="mdy">04/15/2024</say-as> 
+                and times like <say-as interpret-as="time" format="hms12">03:45:30 PM</say-as>.
+            </p>
+        </prosody>
+    </voice>
+    
+    <break time="1s"/>
+    
+    <voice name="en-GB-Wavenet-F">
+        <prosody rate="fast" pitch="high">
+            <p>
+                Lastly, you can add some fun elements like <audio src="https://www.example.com/sound.mp3">sound effects</audio> 
+                and control the volume of your speech. 
+                For example, this sentence will be spoken at a <prosody volume="loud">louder volume</prosody>.
+            </p>
+        </prosody>
+    </voice>
+    
+    <voice name="en-AU-Wavenet-G">
+        <prosody rate="default" pitch="default">
+            <p>
+                Thank you for exploring SSML with us. We hope you have a great day!
+            </p>
+        </prosody>
+    </voice>
+</speak>
 `;
 
 parseSSML(anotherSSML);

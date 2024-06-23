@@ -36,12 +36,13 @@ export function extractAttributes(badTag: string) {
   let badTagAttributes = badTag.substring(tagName.length);
   let ssmlAttributes: SSMLAttribute[] = [];
 
-  let regex = /[a-z]+\s*=\s*['"].+['"]/i;
+  let regex = /[a-z]+\s*=\s*(['"][a-zA-Z0-9-:/. ]+["'])/i;
   let match;
 
   while ((match = regex.exec(badTagAttributes)) !== null) {
     const length = match.index + match![0].length;
     let [key, value] = match![0].split("=");
+
     assert(
       value.length > 2 && value[0] === value[value.length - 1],
       ' " issue'
@@ -52,7 +53,7 @@ export function extractAttributes(badTag: string) {
   }
 
   badTagAttributes = badTagAttributes.trim();
-
+  
   assert(
     badTagAttributes.length > 0
       ? badTagAttributes.length === 1
