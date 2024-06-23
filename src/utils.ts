@@ -4,7 +4,7 @@ import { SSMLAttribute } from "./types";
 
 export const ERROR_MESSAGE = "[ERROR]: error parsing ssml";
 
-export function assert(condition: boolean, message?: string) {
+export function assert(condition: boolean, message: string = "") {
   if (!condition) {
     throw Error(ERROR_MESSAGE + `, ${message}`);
   }

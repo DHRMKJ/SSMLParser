@@ -1,6 +1,6 @@
 // src/utils.ts
 var ERROR_MESSAGE = "[ERROR]: error parsing ssml";
-function assert(condition, message) {
+function assert(condition, message = "") {
   if (!condition) {
     throw Error(ERROR_MESSAGE + `, ${message}`);
   }
@@ -127,7 +127,6 @@ var anotherSSML = `
             </p>
         </prosody>
     </voice>
-    
     <voice name="en-AU-Wavenet-C">
         <prosody rate="fast" pitch="x-high">
             <p>
@@ -169,7 +168,7 @@ var anotherSSML = `
                 For example, this sentence will be spoken at a <prosody volume="loud">louder volume</prosody>.
             </p>
         </prosody>
-    </voice>
+    </voic>
     
     <voice name="en-AU-Wavenet-G">
         <prosody rate="default" pitch="default">
